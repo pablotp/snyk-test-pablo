@@ -1,0 +1,22 @@
+plugins {
+  id "net.foragerr.jmeter" version "1.0.3-2.13"
+}
+
+group 'com.redbull.uim'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'eclipse'
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+jmeter {
+  jmTestFiles = [file("src/test/jmeter/uim_login_and_registration.jmx")] 
+  enableExtendedReports = true
+  jmUserProperties = new ArrayList();
+  project.properties.each{ k, v -> jmUserProperties << "${k}=" + "${v}" }
+}
