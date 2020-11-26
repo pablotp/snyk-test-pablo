@@ -1,0 +1,65 @@
+plugins {
+    id 'net.ltgt.apt' version '0.19'
+    id "net.ltgt.apt-idea" version "0.19"
+    id "net.ltgt.apt-eclipse" version "0.19"
+}
+
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: "net.ltgt.apt-idea"
+//apply plugin: "net.ltgt.apt-eclipse"
+
+
+eclipse {
+  jdt {
+    apt {
+      // where Eclipse will output the generated sources; value is interpreted as per project.file()
+       genSrcDir = file('build/generated/source/apt/main')
+    }
+  }
+}
+
+dependencies {
+    compile project(':persistence-api')
+    compile project(':external-services')
+    compile project(':resources')
+    compile project(':consent')
+    compile project(':mappers')
+    compile project(':providers')
+    compile project(':cache')
+    compile "org.mongodb:bson:${mongoDriverVersion}"
+
+    compile("com.sendgrid:sendgrid-java:${sendGridVersion}") {
+        exclude group: "org.hamcrest"
+        exclude group: "org.mockito"
+    }
+    compile "com.amazonaws:aws-java-sdk-sns:${awsJavaSDKVersion}"
+    compile "com.amazonaws:aws-java-sdk-ses:${awsJavaSDKVersion}"
+    compile "org.freemarker:freemarker:${freemarkerVersion}"
+    compile "org.mapstruct:mapstruct-jdk8:${mapStructVersion}"
+    compile "org.jasypt:jasypt:${jasyptVersion}"
+    compile "commons-net:commons-net:${commonsNetVersion}"
+    compile "org.springframework:spring-context:${springVersion}"
+    compile "org.springframework.integration:spring-integration-sftp:${springIntegrationVersion}"
+    compile "org.apache.tika:tika-core:${tikaVersion}"
+    compile "nl.basjes.parse.useragent:yauaa:1.4"
+    compile("com.github.rinoto.mongo:migramongo-spring:${migraMongoVersion}")
+    compile("com.googlecode.libphonenumber:libphonenumber:${libphonenumberVersion}")
+    compile("com.github.ben-manes.caffeine:caffeine:${caffeineVersion}")
+    compile("com.cloudinary:cloudinary-http44:1.24.0")
+
+    testCompile project(':test')
+    testCompile project(':resources')
+    testCompile("org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}")
+    testCompile("org.springframework:spring-web:${springVersion}")
+    testCompile("com.shazam:shazamcrest:0.11")
+    testCompile("com.github.kstyrc:embedded-redis:${embeddedRedisVersion}")
+    testCompile("io.projectreactor:reactor-test:${reactorVersion}");
+
+    annotationProcessor "org.mapstruct:mapstruct-processor:$mapStructVersion"
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs = ['-Amapstruct.suppressGeneratorTimestamp=true', '-Amapstruct.defaultComponentModel=spring']
+}
+

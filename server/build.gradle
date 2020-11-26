@@ -1,0 +1,199 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "io.spring.gradle:dependency-management-plugin:${gradleDependencyManagmentVersion}"
+    }
+}
+
+plugins {
+    id "org.asciidoctor.convert" version "1.5.7"
+    id "com.gorylenko.gradle-git-properties" version "1.5.1"
+    id "nebula.ospackage" version "4.8.0"
+    id "war"
+    //id "com.jfrog.artifactory" version "4.7.3"
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'war'
+apply plugin: 'org.asciidoctor.convert'
+apply plugin: 'maven-publish'
+apply plugin: "ivy-publish"
+
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
+integTest {
+    outputs.dir snippetsDir
+    filter {
+        includeTestsMatching "*Test"
+    }
+}
+
+asciidoctor {
+    attributes 'snippets': snippetsDir
+    inputs.dir snippetsDir
+    dependsOn integTest
+}
+
+processResources {
+    filesMatching('**/*.properties') { expand(project.properties) }
+}
+
+configurations {
+    // Needed for setting tomcat resource to provided runtime in WAR and compile in JAR
+    // see https://discuss.gradle.org/t/provided-dependencies-with-spring-boot-the-war-plugin-and-intellij-idea/8761/4
+    customProvidedRuntime
+}
+
+springBoot {
+//    providedConfiguration = "customProvidedRuntime"
+
+}
+
+jar {
+    baseName = appName + '-embedded'
+    dependsOn asciidoctor
+    from("${asciidoctor.outputDir}/html5") {
+        into 'resources/docs'
+    }
+
+}
+
+bootWar {
+    baseName = appName
+    dependsOn asciidoctor
+    from("${asciidoctor.outputDir}/html5") {
+        into 'resources/docs'
+    }
+    mainClassName = "com.redbull.uim.server.UimServer"
+    classpath = files(configurations.runtime - configurations.providedRuntime)
+    from(sourceSets.main.output.classesDirs.singleFile) {
+        into('WEB-INF/classes')
+    }
+    from(sourceSets.main.output.resourcesDir) {
+        into('WEB-INF/classes')
+    }
+}
+
+dependencies {
+    compile project(':persistence-mongo')
+    compile project(':rest-webservice')
+    compile project(':resources')
+    compile project(':external-services')
+    compile project(':consent')
+    compile("org.mongodb:mongo-java-driver:${mongoDriverVersion}")
+    compile("org.mongodb:mongodb-driver-async:${mongoDriverVersion}") {
+      force = true
+    }
+    compile("org.mongodb:mongodb-driver-core:${mongoDriverVersion}") {
+      force = true
+    }
+    compile("org.mongodb:mongodb-driver-reactivestreams:${reactiveMongoDriverVersion}")
+    compile("org.springframework.cloud:spring-cloud-netflix-core:${springCloudNetflixVersion}")
+    compile "io.lettuce:lettuce-core:${lettuceVersion}"
+
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat:${springBootVersion}")
+    compile("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}")
+
+    compile("org.springframework.boot:spring-boot-starter-security:${springBootVersion}")
+    compile("org.springframework.security.extensions:spring-security-saml2-core:${springSecuritySamlVersion}")
+    compile("org.springframework.security:spring-security-oauth2-resource-server:${springSecurityVersion}")
+    compile("org.springframework.security:spring-security-oauth2-jose:${springSecurityVersion}")
+    compile("org.springframework.security:spring-security-config:${springSecurityVersion}")
+
+    compile("org.aspectj:aspectjweaver:${aspectJVersion}")
+    compile("com.indeed:java-dogstatsd-client:${docstatsdVersion}")
+    compile("com.amazonaws:aws-java-sdk-sns:${awsJavaSDKVersion}")
+    compile("com.amazonaws:aws-java-sdk-ses:${awsJavaSDKVersion}")
+    compile("com.amazonaws:aws-java-sdk-s3:${awsJavaSDKVersion}")
+    compile("com.github.ulisesbocchio:jasypt-spring-boot-starter:${jasyptSpringBootVersion}")
+    compile("com.github.rinoto.mongo:migramongo-spring:${migraMongoVersion}")
+    compile("org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}");
+    compile group: 'org.apache.commons', name: 'commons-pool2', version: "${commonsPool2Version}"
+
+
+    testCompile project(':test')
+    testCompile("com.github.baev:hamcrest-optional:${hamcrestOptionalVersion}")
+    testCompile("org.springframework.restdocs:spring-restdocs-mockmvc:${springRestDocsVersion}") {
+       force = true
+    }
+    testCompile("org.springframework.restdocs:spring-restdocs-core:${springRestDocsVersion}") {
+       force = true
+    }
+    testCompile("org.springframework.security:spring-security-test:${springSecurityVersion}")
+    testCompile("com.jayway.jsonpath:json-path:${jsonPathVersion}")
+    testCompile(group: "org.skyscreamer", name: "jsonassert", version: "${skyscreamerVersion}")
+    testCompile("com.github.tomakehurst:wiremock:2.25.1")
+    testCompile("org.eclipse.jetty:jetty-server:9.4.26.v20200117");
+    testCompile(group: "net.javacrumbs.json-unit", name: "json-unit", version: "${jsonUnitVersion}")
+}
+
+task debianPackage(type: Deb) {
+    packageName = 'uimapp'
+    version = parent.version.replaceAll('~','-') // Still no clue why in CCI the '-' get replaced by '~'
+    archiveFileName = 'uimapp_' + version + '_all.deb'
+
+    postInstall file('src/main/deb/control/postinst')
+
+    requires('openjdk-11-jre-headless')
+    requires('tomcat9')
+
+    from(bootWar.outputs.files) {
+        into '/tmp'
+    }
+    from('src/main/deb/files/bootstrap.sh') {
+        fileMode 0755
+        into '/usr/local/bin'
+    }
+    // let's install the migration script here. We will execute this in bootstrap.
+    from('src/main/deb/files/migrations.sh') {
+        fileMode 0755
+        into '/usr/local/bin'
+    }
+
+    // let's package the conf.d setups here.
+    from('src/main/deb/files/confd/conf.d') {
+        fileMode 0755
+        into '/etc/confd/conf.d'
+    }
+
+    from('src/main/deb/files/confd/templates') {
+        fileMode 0755
+        into '/etc/confd/templates'
+    }
+
+    // additionally, we want to package Datadog configs...
+    from('src/main/deb/files/datadog/conf.d') {
+        fileMode 0755
+        into '/etc/datadog-agent/conf.d'
+    }
+
+    // overwrite the access-log's format
+    from('src/main/deb/files/tomcat/server.xml') {
+        fileMode 0755
+        into '/tmp/tomcat9'
+    }
+
+    // copy the datadog agent jar to the dd directory
+    from('src/main/deb/files/datadog/agent/dd-java-agent-0.32.0.jar') {
+        fileMode 0755
+        into '/tmp/datadog-agent'
+    }
+
+    customField([
+        'Component': 'main',
+        'Distribution': 'bionic'
+    ])
+}
+
+tasks['build'].dependsOn("debianPackage")
+
+
+
+
+

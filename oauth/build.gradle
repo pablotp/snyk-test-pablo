@@ -1,0 +1,23 @@
+dependencies {
+    compile("org.apache.oltu.oauth2:org.apache.oltu.oauth2.common:${apacheOltuVersion}")
+    compile("org.apache.oltu.oauth2:org.apache.oltu.oauth2.authzserver:${apacheOltuVersion}")
+    compile("org.apache.oltu.oauth2:org.apache.oltu.oauth2.jwt:${apacheOltuVersion}")
+    compile("org.apache.oltu.jose:org.apache.oltu.jose.jws:${apacheOltuVersion}")
+    compile("io.jsonwebtoken:jjwt-impl:${jwtVersion}")
+    compile("io.jsonwebtoken:jjwt-api:${jwtVersion}")
+    compile("io.jsonwebtoken:jjwt-jackson:${jwtVersion}")
+    compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
+    compile("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
+    compile("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+
+    testCompile("org.springframework:spring-context:${springVersion}")
+
+
+    compile project(":service")
+    compile project(":persistence-api")
+    compile project(":external-services")
+    
+    
+    testCompile project(':test')
+
+}

@@ -1,0 +1,22 @@
+dependencies {
+    compile project(':persistence-api')
+    compile project(':resources')
+    compile("org.mongodb:mongo-java-driver:${mongoDriverVersion}") {
+       force = true
+    }
+    compile("org.mongodb:mongodb-driver-reactivestreams:${reactiveMongoDriverVersion}")
+    compile("com.github.rinoto.mongo:migramongo-core:${migraMongoVersion}")
+    // needed for the @Value in the mongo migration scripts
+    compile("org.springframework:spring-context:${springVersion}")
+    compile("org.springframework:spring-web:${springVersion}")
+    compile "org.springframework.integration:spring-integration-sftp:${springIntegrationVersion}"
+    compile("org.apache.httpcomponents:httpclient:${httpClientVersion}")
+    compile("org.apache.tika:tika-core:${tikaVersion}")
+
+    testCompile project(':test')
+    testCompile project(':resources')
+    testCompile("com.github.rinoto.mongo:migramongo-reflections:${migraMongoVersion}")
+    testCompile("org.apache.commons:commons-lang3:${commonsLang3Version}");
+    testCompile("de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.2.0")
+    
+}

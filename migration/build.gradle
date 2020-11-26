@@ -1,0 +1,20 @@
+dependencies {
+
+    compile project(':service')
+    compile project(':persistence-api')
+    compile("com.google.code.gson:gson:${gsonVersion}")
+    compile("org.mongodb:mongo-java-driver:${mongoDriverVersion}") {
+      force = true
+    }
+    compile("org.springframework:spring-context:${springVersion}")
+    compile("org.springframework.integration:spring-integration-core:${springIntegrationVersion}")
+
+    compile("org.apache.poi:poi-ooxml:${apachePoiVersion}")
+    compile("org.apache.commons:commons-csv:1.8");
+
+    testCompile files('lib/gigya-sdk-3.2.1.jar');
+    testCompile("org.apache.httpcomponents:httpclient:${httpClientVersion}")
+    testCompile("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+
+    testCompile project(':test')
+}

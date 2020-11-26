@@ -1,0 +1,26 @@
+dependencies {
+    compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
+    compile("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
+    compile("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}")
+    compile("javax.validation:validation-api:${javaValidationVersion}")
+    compile("javax.annotation:javax.annotation-api:1.3.1")
+    compile("com.google.guava:guava:${guavaVersion}")
+    compile("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:${owaspHtmlSanitizerVersion}")
+    compile("org.jsoup:jsoup:${jsoupVersion}")
+    compile("javax.servlet:javax.servlet-api:${javaServletVersion}")
+    compile("org.springframework:spring-web:${springVersion}")
+    compile("org.springframework:spring-context:${springVersion}")
+    compile("io.reactivex:rxjava:${rxJavaVersion}")
+    compile("io.reactivex:rxjava-reactive-streams:${rxJavaStreamsVersion}")
+    compile("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    compile("org.apache.commons:commons-text:${commonsTextVersion}")
+    compile("commons-validator:commons-validator:${commonsValidatorVersion}")
+    compile("commons-beanutils:commons-beanutils:${commonsBeanutilsVersion}")
+    compile("com.auth0:jwks-rsa:${authJwksVersion}");
+    compile("com.auth0:java-jwt:${authJwtVersion}");
+    compile("org.springframework:spring-webmvc:${springVersion}")
+
+    testCompile("org.bouncycastle:bcpg-jdk15on:${bouncyCastleVersion}")
+
+}

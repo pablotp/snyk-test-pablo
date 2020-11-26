@@ -1,0 +1,6 @@
+
+dependencies {
+    compile "io.lettuce:lettuce-core:${lettuceVersion}"
+    compile "org.apache.commons:commons-pool2:${commonsPool2Version}"
+}
+

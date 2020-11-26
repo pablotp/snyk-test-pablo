@@ -1,0 +1,28 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("io.spring.gradle:dependency-management-plugin:${gradleDependencyManagmentVersion}")
+    }
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}")
+    compile("org.springframework:spring-webmvc:${springVersion}")
+    compile("org.springframework.boot:spring-boot-starter-security:${springBootVersion}")
+    compile project(":oauth")
+    compile project(":service")
+    compile project(":commons")
+    compile project(':external-services')
+    compile project(':migration')
+    compile project(":oidc")
+
+    compile("com.amazonaws:aws-java-sdk-core:${awsJavaSDKVersion}")
+    compile("com.github.rinoto.mongo:migramongo-spring-web:${migraMongoVersion}")
+    compile("com.amazonaws:aws-java-sdk-s3:${awsJavaSDKVersion}")
+    compile("commons-fileupload:commons-fileupload:${commonsFileuploadVersion}")
+    compile ("org.owasp.encoder:encoder:1.2.2")
+
+    testCompile project(':test')
+}

@@ -1,0 +1,8 @@
+dependencies {
+    compile project(':mappers')
+    compile project(':persistence-api')
+
+    compile "org.bouncycastle:bcpg-jdk15on:${bouncyCastleVersion}"
+
+    testCompile project(':test')
+}

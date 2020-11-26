@@ -1,0 +1,19 @@
+dependencies {
+
+    compile project(':commons')
+    compile project(':cache')
+    compile("org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}")
+    compile("com.mashape.unirest:unirest-java:${uniRestVersion}")
+    compile("org.springframework:spring-web:${springVersion}")
+    compile("org.apache.httpcomponents:httpclient:${httpClientVersion}")
+    compile "com.amazonaws:aws-java-sdk-s3:${awsJavaSDKVersion}"
+    compile("commons-codec:commons-codec:${commonsCodecVersion}")
+    compile("com.auth0:java-jwt:${authJwtVersion}");
+    compile("com.indeed:java-dogstatsd-client:${docstatsdVersion}")
+    compile("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    compile("io.jsonwebtoken:jjwt-impl:${jwtVersion}")
+    compile("io.jsonwebtoken:jjwt-api:${jwtVersion}")
+    compile("io.jsonwebtoken:jjwt-jackson:${jwtVersion}")
+
+    testCompile project(':test')
+}

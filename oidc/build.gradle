@@ -1,0 +1,9 @@
+dependencies {
+    compile project(':cache')
+    compile project(':service')
+    compile project(':oauth')
+
+    testCompile project(':test')
+
+    compile("org.springframework.boot:spring-boot-starter-security:${springBootVersion}")
+}
